@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#24262a" />
+    <title>Approved or Denied: you vs. the DMV</title>
+    <meta name="description" content="Real vanity plate applications. You rule on them, then see what the DMV actually decided and what the reviewer wrote." />
+    <link rel="canonical" href="%SITE_URL%/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Approved or Denied" />
+    <meta property="og:title" content="Approved or Denied: you vs. the DMV" />
+    <meta property="og:description" content="Real vanity plate applications. Approve or deny, then see what the DMV reviewer actually wrote." />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:image" content="%SITE_URL%/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A license plate stamped DENIED, with the title Approved or Denied" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Approved or Denied: you vs. the DMV" />
+    <meta name="twitter:description" content="Real vanity plate applications. Approve or deny, then see what the DMV reviewer actually wrote." />
+    <meta name="twitter:image" content="%SITE_URL%/og.png" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/deck.json" as="fetch" crossorigin="anonymous" />
+    <link rel="preload" href="/daily.json" as="fetch" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div class="app" id="app">
+      <header class="bar">
+        <h1 class="logo">Approved <i>or</i> Denied</h1>
+        <div class="tools">
+          <button type="button" class="icon-btn" id="btn-sound" aria-pressed="false" aria-label="Sound">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" /><path class="sound-on" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" /><path class="sound-off" d="M16.5 9.5l5 5m0-5l-5 5" /></svg>
+          </button>
+          <button type="button" class="icon-btn" id="btn-stats" aria-label="Your stats">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M12 20V5M19 20v-6" /></svg>
+          </button>
+          <button type="button" class="icon-btn" id="btn-about" aria-label="About this game">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7.5v.5" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="status" id="status">
+        <nav class="modes" aria-label="Game mode">
+          <button type="button" class="mode" id="mode-daily" aria-pressed="false">Daily</button>
+          <button type="button" class="mode" id="mode-streak" aria-pressed="false">Streak</button>
+        </nav>
+        <div class="status-streak" id="status-streak" aria-live="polite" hidden>
+          <span>Streak <b id="streak">0</b></span>
+          <span>Best <b id="best">0</b></span>
+        </div>
+        <div class="status-daily" id="status-daily" aria-live="polite" hidden>
+          <span class="docket-label" id="docket-label">#1</span>
+          <ol class="dots" id="dots" aria-label="Progress"></ol>
+        </div>
+      </div>
+
+      <main class="stage" id="stage">
+        <section class="round" id="round">
+          <div class="card" id="card">
+            <div class="plate" id="plate">
+              <span class="plate-top" aria-hidden="true">Personalized</span>
+              <span class="plate-text" id="plate-text" role="img" aria-label="Loading plate">·······</span>
+              <span class="plate-bottom" aria-hidden="true">Under review</span>
+            </div>
+            <span class="stamp" id="stamp" hidden></span>
+            <span class="swipe-hint swipe-deny" aria-hidden="true">Deny</span>
+            <span class="swipe-hint swipe-approve" aria-hidden="true">Approve</span>
+          </div>
+
+          <div class="copy">
+            <p class="label">Applicant says:</p>
+            <p class="meaning" id="meaning">&nbsp;</p>
+          </div>
+
+          <div class="reveal" id="reveal" hidden>
+            <p class="verdict" id="verdict"></p>
+            <p class="label">DMV reviewer wrote:</p>
+            <p class="comment" id="comment"></p>
+          </div>
+        </section>
+
+        <section class="result" id="result" hidden aria-labelledby="result-title">
+          <p class="result-kicker" id="result-kicker"></p>
+          <h2 class="result-number" id="result-title">0</h2>
+          <p class="result-sub" id="result-sub"></p>
+          <ol class="result-row" id="result-row" aria-hidden="true"></ol>
+          <p class="result-countdown" id="result-countdown" hidden></p>
+        </section>
+      </main>
+
+      <footer class="actions" id="decide">
+        <button type="button" class="btn btn-deny" id="btn-deny" disabled>
+          <span class="btn-icon" aria-hidden="true">✗</span> Deny
+        </button>
+        <button type="button" class="btn btn-approve" id="btn-approve" disabled>
+          <span class="btn-icon" aria-hidden="true">✓</span> Approve
+        </button>
+      </footer>
+      <footer class="actions" id="continue" hidden>
+        <button type="button" class="btn btn-next" id="btn-next">Next plate →</button>
+      </footer>
+      <footer class="actions" id="after" hidden>
+        <button type="button" class="btn btn-quiet" id="btn-secondary">Play again</button>
+        <button type="button" class="btn btn-next" id="btn-share">Share</button>
+      </footer>
+    </div>
+
+    <div class="toast" id="toast" role="status" hidden></div>
+
+    <dialog class="panel" id="stats" aria-labelledby="stats-title">
+      <div class="panel-head">
+        <h2 id="stats-title">Your stats</h2>
+        <button type="button" class="icon-btn" data-close aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </div>
+      <div class="panel-body" id="stats-body"></div>
+    </dialog>
+
+    <dialog class="panel" id="about" aria-labelledby="about-title">
+      <div class="panel-head">
+        <h2 id="about-title">About</h2>
+        <button type="button" class="icon-btn" data-close aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </div>
+      <div class="panel-body prose">
+        <p>
+          Every plate here is a real personalized-plate application that the California DMV flagged for review in
+          2015 and 2016. You read the request and the applicant's explanation, rule on it, then see what the DMV
+          decided and what the reviewer wrote.
+        </p>
+        <h3>Where the data comes from</h3>
+        <p>
+          The records were released in response to a public records request and compiled by Noah Veltman in
+          <a href="https://github.com/veltman/ca-license-plates" target="_blank" rel="noopener">veltman/ca-license-plates</a>.
+          Plates, explanations and reviewer comments are quoted exactly as they appear, typos included.
+        </p>
+        <p>
+          To keep this a game, rows with slurs or hate terms were left out, as were rows that seemed to name a
+          private person or include contact details. Crude and sexual humor was kept. Plates were also picked so
+          that half of each docket was approved and half denied; in the full records, about four in five were
+          denied.
+        </p>
+        <h3>How to play</h3>
+        <p>
+          Tap <b>Approve</b> or <b>Deny</b>, swipe the plate right or left, or use the keyboard: <kbd>D</kbd> or
+          <kbd>→</kbd> approves, <kbd>A</kbd> or <kbd>←</kbd> denies, <kbd>N</kbd> moves on. The daily docket is the
+          same ten plates for everyone and changes at midnight UTC. Streak mode keeps going until your first wrong
+          call.
+        </p>
+        <h3>Privacy</h3>
+        <p>No accounts and no cookies. Your scores are kept only in this browser.</p>
+        <p class="fine">
+          Not affiliated with, or endorsed by, the California Department of Motor Vehicles. Plate design is
+          generic. Plate font: Barlow Condensed (SIL Open Font License).
+        </p>
+      </div>
+    </dialog>
+
+    <dialog class="notice" id="notice" aria-labelledby="notice-title">
+      <h2 id="notice-title">Heads up</h2>
+      <p>
+        Every plate here is a real application the California DMV flagged for review, with the applicant's
+        explanation and the reviewer's notes quoted exactly. Expect crude language and sexual humor.
+      </p>
+      <p class="notice-small">Not affiliated with the California DMV.</p>
+      <button type="button" class="btn btn-next" id="notice-ok">Got it, let me judge</button>
+    </dialog>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

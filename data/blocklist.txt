@@ -1,0 +1,138 @@
+# Blocklist for slurs and hate terms. Edit freely; the deck build reads this file.
+#
+#   term     whole-word match (plurals included) in meaning and comment, and a
+#            substring match inside the plate after undoing number-for-letter swaps
+#   ~term    whole-word match everywhere, never a plate substring (short or ambiguous terms)
+#   !safe    plate allowlist: removed from the plate before substring matching
+#
+# A row that matches anything here is dropped. When unsure, add the term.
+
+# --- Racial and ethnic slurs ---
+nigger
+nigga
+niger
+nigr
+~nig
+~nigs
+~nicca
+negro
+negra
+~mayate
+~coon
+coonass
+~okie
+~okies
+spick
+~spic
+wetback
+beaner
+chink
+~gook
+~jap
+~japs
+kike
+~heeb
+~yid
+kraut
+~wop
+~dago
+~paki
+raghead
+towelhead
+sandnigger
+~cracker
+honky
+honkey
+~gringo
+~gabacho
+redskin
+squaw
+injun
+gypsy
+~gyp
+~mick
+polack
+zipperhead
+slanteye
+jigaboo
+jiggaboo
+pickaninny
+~sambo
+darkie
+~darky
+chinaman
+~whitey
+~haole
+~ching chong
+
+# --- Religious slurs ---
+~jew
+~jews
+~jewish
+~muzzie
+~christkiller
+
+# --- Homophobic and transphobic slurs ---
+faggot
+fagot
+~fag
+~fags
+~dyke
+~dykes
+~homo
+~homos
+tranny
+shemale
+~lesbo
+~joto
+~jota
+maricon
+~marica
+~puto
+nancyboy
+~nancy boy
+~flit
+~gays
+
+# --- Hate groups, hate symbols, and reviewer notes that flag them ---
+hitler
+nazi
+~kkk
+~heil
+~sieg
+aryan
+skinhead
+~white power
+~whitepower
+~white pride
+~1488
+~hate
+~hate symbol
+~hate number
+~hate group
+~racial
+~racially
+~racist
+~ethnic
+~ethnically
+~slur
+~derogatory
+~disparaging
+~whites only
+~whiteman
+~big black
+~mex
+~asian accent
+~accent
+
+# --- Plate allowlist (innocent words that contain a short term above) ---
+!night
+!knight
+!snig
+!spicy
+!spice
+!raccoon
+!cocoon
+!tycoon
+!japan
+!kraken

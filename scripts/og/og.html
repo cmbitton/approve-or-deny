@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+@font-face { font-family: 'Barlow Condensed'; src: url('../../src/fonts/barlow-condensed-latin-700-normal.woff2') format('woff2'); font-weight: 700; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  width: 1200px; height: 630px; overflow: hidden;
+  display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 40px; padding: 0 70px;
+  background: #24262a; color: #f3f2ee; font-family: system-ui, sans-serif;
+}
+h1 { margin: 0; font: 700 112px/0.9 'Barlow Condensed'; text-transform: uppercase; letter-spacing: 1px; }
+h1 i { font-style: normal; color: #f5c518; text-transform: lowercase; display: block; font-size: 80px; margin: 6px 0 4px; }
+p { margin: 26px 0 0; font-size: 31px; line-height: 1.3; color: #c9ccd2; }
+.card { position: relative; width: 500px; container-type: inline-size; transform: rotate(-3deg); }
+.plate {
+  display: grid; grid-template-rows: 1fr auto 1fr; place-items: center; aspect-ratio: 2/1; width: 100%;
+  border-radius: 7cqi / 14cqi; color: #1b2a57;
+  background:
+    radial-gradient(circle at 9% 18%, #b9bcc4 0 1.4cqi, transparent 1.6cqi),
+    radial-gradient(circle at 91% 18%, #b9bcc4 0 1.4cqi, transparent 1.6cqi),
+    radial-gradient(circle at 9% 82%, #b9bcc4 0 1.4cqi, transparent 1.6cqi),
+    radial-gradient(circle at 91% 82%, #b9bcc4 0 1.4cqi, transparent 1.6cqi),
+    linear-gradient(170deg, #fff 0%, #fbfbf7 55%, #e6e6df 100%);
+  box-shadow: inset 0 0 0 1.2cqi #1b2a57, inset 0 0 0 1.8cqi #fff, 0 30px 60px rgb(0 0 0 / .55);
+}
+.top, .bottom { font: 700 6.5cqi/1 'Barlow Condensed'; letter-spacing: .3em; text-transform: uppercase; opacity: .7; align-self: end; padding-left: .3em; }
+.bottom { align-self: start; font-size: 5cqi; }
+.text { font: 700 27cqi/1 'Barlow Condensed'; letter-spacing: .03em; margin-block: -1cqi; }
+.stamp {
+  position: absolute; left: 68%; top: 88%; transform: translate(-50%, -50%) rotate(-10deg); background: rgb(251 251 247 / .85);
+  padding: 1.6cqi 4.5cqi 1cqi; border: 1.5cqi solid #c8202f; border-radius: 3.5cqi;
+  outline: .7cqi solid #c8202f; outline-offset: -2.9cqi;
+  color: #c8202f; font: 700 17cqi/1 'Barlow Condensed'; text-transform: uppercase; letter-spacing: .05em;
+}
+</style>
+</head>
+<body>
+  <div>
+    <h1>Approved <i>or</i> Denied</h1>
+    <p>Real vanity plate applications.<br>You rule. Then see what the DMV did.</p>
+  </div>
+  <div class="card">
+    <div class="plate"><span class="top">Personalized</span><span class="text">VERY BIG</span><span class="bottom">Under review</span></div>
+    <span class="stamp">Denied</span>
+  </div>
+</body>
+</html>
