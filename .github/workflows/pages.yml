@@ -27,10 +27,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      # Preview images for shared-plate links take a few minutes to render from scratch.
+      # The cache keeps them between runs; only plates whose text or artwork changed are redrawn.
+      - uses: actions/cache@v4
+        with:
+          path: .cache/cards
+          key: cards-${{ hashFiles('public/deck.json', 'scripts/share/**', 'src/site.ts') }}
+          restore-keys: cards-
       - run: npm run build
-        env:
-          # Link previews need absolute URLs. Change this when the game moves to its own domain.
-          VITE_SITE_URL: https://cmbitton.github.io/approve-or-deny
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

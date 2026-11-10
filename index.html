@@ -51,6 +51,7 @@
           <span>Streak <b id="streak">0</b></span>
           <span>Best <b id="best">0</b></span>
         </div>
+        <p class="status-shared" id="status-shared" hidden>Shared plate</p>
         <div class="status-daily" id="status-daily" aria-live="polite" hidden>
           <span class="docket-label" id="docket-label">#1</span>
           <ol class="dots" id="dots" aria-label="Progress"></ol>
@@ -79,6 +80,10 @@
             <p class="verdict" id="verdict"></p>
             <p class="label">DMV reviewer wrote:</p>
             <p class="comment" id="comment"></p>
+            <p class="brand-mark"><b>Approved <i>or</i> Denied</b> <span>%SHORT_URL%</span></p>
+            <button type="button" class="icon-btn share-plate" id="btn-share-plate" aria-label="Share this plate">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14.5V3.5M7.5 8 12 3.5 16.5 8M6 11.5H5v8.5h14v-8.5h-1" /></svg>
+            </button>
           </div>
         </section>
 

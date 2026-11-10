@@ -69,6 +69,11 @@ export class RoundView {
     return this.phase !== 'idle';
   }
 
+  /** The plate on screen, if any. */
+  get current(): Round | null {
+    return this.phase === 'idle' ? null : this.round;
+  }
+
   /** Shows a plate and resolves with the player's ruling as soon as they make it. */
   play(round: Round, onImpact?: (o: Outcome) => void): Promise<Outcome> {
     this.cancel();

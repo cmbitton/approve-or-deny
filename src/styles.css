@@ -289,6 +289,8 @@ body {
 /* Last resort for extreme text on very short screens; normal rounds fit without
    scrolling. Only after the reveal, so a dragged card is never clipped. */
 .stage:has(.is-revealed) {
+  /* "safe": when the reveal overflows, start at the top so all of it can be scrolled to. */
+  justify-content: safe center;
   overflow-y: auto;
   scrollbar-width: none;
   /* Room for the stamp, which overhangs the plate. */
@@ -327,6 +329,10 @@ body {
 @media (max-height: 700px) {
   .round.is-revealed .card {
     width: calc(var(--plate-w) * 0.58);
+  }
+  /* The longest reviewer notes need the plate smaller still. */
+  .round.is-revealed:has(.comment[data-size='xlong']) .card {
+    width: calc(var(--plate-w) * 0.44);
   }
 }
 
@@ -539,6 +545,8 @@ body {
 
 .verdict {
   margin: 0 0 10px;
+  /* Clear of the share button in the corner. */
+  padding-right: 26px;
   font-weight: 900;
   font-size: 1.15rem;
 }
@@ -680,6 +688,65 @@ body {
 
 .btn-icon {
   font-size: 1.15em;
+}
+
+/* Name and address on the reveal card, so a screenshot says where it came from.
+   The share button sits in the card's corner: small, and out of the way of Next. */
+.reveal {
+  position: relative;
+}
+
+.brand-mark {
+  margin: 8px 0 -4px;
+  padding-top: 6px;
+  border-top: 1px dashed rgb(29 29 34 / 0.18);
+  font-size: 0.7rem;
+  line-height: 1.3;
+  color: var(--paper-muted);
+  overflow-wrap: anywhere;
+}
+
+.brand-mark b {
+  margin-right: 5px;
+  font: 700 0.85rem/1 var(--font-plate);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--paper-ink);
+  white-space: nowrap;
+}
+
+.brand-mark span {
+  white-space: nowrap;
+}
+
+.brand-mark i {
+  font-style: normal;
+  text-transform: lowercase;
+  color: #876400;
+}
+
+.icon-btn.share-plate {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 48px;
+  height: 48px;
+  color: var(--paper-muted);
+}
+
+.icon-btn.share-plate:hover {
+  color: var(--paper-ink);
+}
+
+.icon-btn.share-plate svg {
+  width: 21px;
+  height: 21px;
+}
+
+.status-shared {
+  margin: 0;
+  font-weight: 700;
+  color: var(--text);
 }
 
 /* ---------- Toast ---------- */

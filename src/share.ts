@@ -1,4 +1,5 @@
-// Share strings never mention the plates themselves: no spoilers.
+// Share strings never give away a verdict: no spoilers.
+import { plateText } from './plate.ts';
 
 const TITLE = 'Approved or Denied';
 const RIGHT = '✅';
@@ -15,11 +16,24 @@ export function streakShareText(streak: number, url: string): string {
   return `${TITLE}  Streak: ${streak}  ${run}${WRONG}\n${url}`;
 }
 
+/** One plate, as a question. The link opens that plate, unjudged. */
+export function plateShareText(plate: string): string {
+  return `“${plateText(plate)}”: would you approve this?`;
+}
+
+export function plateUrl(siteUrl: string, id: string): string {
+  return `${siteUrl}/p/${id}/`;
+}
+
 export type ShareOutcome = 'share' | 'clipboard' | 'cancelled' | 'failed';
 
-/** Native share sheet where available, clipboard otherwise. */
-export async function shareText(text: string): Promise<ShareOutcome> {
-  const data = { text };
+/**
+ * Native share sheet where available, clipboard otherwise. With a `url`, the share sheet
+ * gets it as a separate field (so apps can build a link preview) and the clipboard gets
+ * the text with the link on its own line.
+ */
+export async function shareText(text: string, url?: string): Promise<ShareOutcome> {
+  const data: ShareData = url ? { text, url } : { text };
   if (typeof navigator.share === 'function' && (!navigator.canShare || navigator.canShare(data))) {
     try {
       await navigator.share(data);
@@ -29,7 +43,7 @@ export async function shareText(text: string): Promise<ShareOutcome> {
       // Fall through to the clipboard (e.g. share blocked in an iframe).
     }
   }
-  return (await copyText(text)) ? 'clipboard' : 'failed';
+  return (await copyText(url ? `${text}\n${url}` : text)) ? 'clipboard' : 'failed';
 }
 
 async function copyText(text: string): Promise<boolean> {

@@ -16,7 +16,7 @@ import type { Deck, Round } from '../src/deck-types.ts';
 import { dailyShareText, streakShareText } from '../src/share.ts';
 
 const makeDeck = (perSide: number): Round[] =>
-  Array.from({ length: perSide * 2 }, (_, i) => ({ p: `PL${i}`, m: 'm', c: 'c', a: (i % 2) as 0 | 1 }));
+  Array.from({ length: perSide * 2 }, (_, i) => ({ id: `id${i}`, p: `PL${i}`, m: 'm', c: 'c', a: (i % 2) as 0 | 1 }));
 
 const deck = makeDeck(400);
 const outcome = new Map(deck.map((r) => [r.p, r.a]));

@@ -4,7 +4,7 @@ import type { Round } from '../src/deck-types.ts';
 import { mulberry32 } from '../src/rng.ts';
 import * as storage from '../src/storage.ts';
 
-const deck: Round[] = Array.from({ length: 200 }, (_, i) => ({ p: `P${i}`, m: 'm', c: 'c', a: (i % 2) as 0 | 1 }));
+const deck: Round[] = Array.from({ length: 200 }, (_, i) => ({ id: `id${i}`, p: `P${i}`, m: 'm', c: 'c', a: (i % 2) as 0 | 1 }));
 
 describe('streak dealer', () => {
   it('stays close to 50/50 over a long run', () => {

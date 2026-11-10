@@ -13,12 +13,17 @@ import { StreakDealer } from './deal.ts';
 import type { Deck, Round } from './deck-types.ts';
 import { fitPlate } from './plate.ts';
 import { RoundView } from './round-view.ts';
-import { dailyShareText, shareText, streakShareText } from './share.ts';
+import { dailyShareText, plateShareText, plateUrl, shareText, streakShareText } from './share.ts';
 import { setSoundEnabled, play as playSound, unlock as unlockSound } from './sound.ts';
 import { computeStats } from './stats.ts';
 import * as storage from './storage.ts';
 
 type Mode = 'daily' | 'streak';
+
+/** Set on the per-plate pages (p/<id>/) that build-share.ts generates. */
+const sharedId = document.querySelector<HTMLMetaElement>('meta[name="aod-plate"]')?.content || null;
+/** The game's own address, resolved through the shared pages' <base href="../../">. */
+const rootUrl = document.baseURI;
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -27,6 +32,8 @@ const el = {
   modeStreak: $<HTMLButtonElement>('mode-streak'),
   statusStreak: $('status-streak'),
   statusDaily: $('status-daily'),
+  statusShared: $('status-shared'),
+  sharePlate: $<HTMLButtonElement>('btn-share-plate'),
   streak: $('streak'),
   best: $('best'),
   docketLabel: $('docket-label'),
@@ -57,7 +64,7 @@ let view: RoundView;
 let rounds: Map<string, Round>;
 let deck: Deck;
 let schedule: Schedule;
-let currentMode: Mode = 'daily';
+let currentMode: Mode | 'shared' = 'daily';
 /** Incremented on every mode switch; a running mode loop stops when it no longer matches. */
 let session = 0;
 let countdownTimer = 0;
@@ -81,11 +88,12 @@ function toast(message: string) {
   toastTimer = window.setTimeout(() => (el.toast.hidden = true), 2200);
 }
 
-function setModeButtons(mode: Mode) {
+function setModeButtons(mode: Mode | 'shared') {
   el.modeDaily.setAttribute('aria-pressed', String(mode === 'daily'));
   el.modeStreak.setAttribute('aria-pressed', String(mode === 'streak'));
   el.statusDaily.hidden = mode !== 'daily';
   el.statusStreak.hidden = mode !== 'streak';
+  el.statusShared.hidden = mode !== 'shared';
 }
 
 function dot(result: boolean | undefined, current = false): HTMLLIElement {
@@ -244,6 +252,7 @@ function setSound(on: boolean, fromTap = false) {
 // ---------- Modes ----------
 
 function startMode(mode: Mode) {
+  leaveSharedPage();
   currentMode = mode;
   session++;
   view.cancel();
@@ -252,6 +261,29 @@ function startMode(mode: Mode) {
   history.replaceState(null, '', mode === 'streak' ? '#streak' : location.pathname + location.search);
   if (mode === 'daily') runDaily(session);
   else runStreak(session);
+}
+
+// ---------- Shared plate (p/<id>/) ----------
+
+/** Moves the address bar from p/<id>/ to the game itself, so reloading doesn't reopen the shared plate. */
+function leaveSharedPage() {
+  if (sharedId && location.href !== rootUrl) history.replaceState(null, '', rootUrl);
+}
+
+/** One plate from a shared link. Nothing is saved: no daily result, streak, stats or seen-list. */
+async function runShared(round: Round) {
+  currentMode = 'shared';
+  const run = ++session;
+  view.cancel();
+  hideResult();
+  setModeButtons('shared');
+  const outcome = await view.play(round);
+  if (run !== session) return;
+  track({ name: 'round_answered', mode: 'shared', correct: outcome.correct });
+  const dailyDone = (storage.load().daily[currentDocket()]?.length ?? 0) >= DOCKET_SIZE;
+  await view.next(dailyDone ? 'Play Streak\u00a0→' : 'Play the Daily\u00a0→');
+  if (run !== session) return;
+  startMode(dailyDone ? 'streak' : 'daily');
 }
 
 async function runDaily(run: number) {
@@ -360,6 +392,16 @@ function bindGlobalInput() {
   el.modeDaily.addEventListener('click', () => startMode('daily'));
   el.modeStreak.addEventListener('click', () => startMode('streak'));
   el.secondary.addEventListener('click', () => secondaryAction?.());
+  el.sharePlate.addEventListener('click', async (e) => {
+    // A tap anywhere else on the round moves on; this one shouldn't.
+    e.stopPropagation();
+    const round = view.current;
+    if (!round) return;
+    const outcome = await shareText(plateShareText(round.p), plateUrl(CONFIG.siteUrl, round.id));
+    if (outcome === 'clipboard') toast('Link copied');
+    else if (outcome === 'failed') toast('Could not copy. Try a screenshot!');
+    if (outcome === 'share' || outcome === 'clipboard') track({ name: 'share_tapped', mode: 'plate', method: outcome });
+  });
   el.share.addEventListener('click', async () => {
     if (!shareAction) return;
     const { text, mode } = shareAction();
@@ -415,6 +457,11 @@ async function boot() {
     return;
   }
   rounds = new Map(deck.rounds.map((r) => [r.p, r]));
+  if (sharedId) {
+    const shared = deck.rounds.find((r) => r.id === sharedId);
+    if (shared) return void runShared(shared);
+    toast('That plate has left the game. Here’s today’s docket.');
+  }
   const dailyDone = (storage.load().daily[currentDocket()]?.length ?? 0) >= DOCKET_SIZE;
   startMode(location.hash === '#streak' || dailyDone ? 'streak' : 'daily');
 }

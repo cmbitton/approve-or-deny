@@ -1,23 +1,17 @@
-import { defineConfig, loadEnv, type Plugin } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
+import { SHORT_URL, SITE_URL } from './src/site.ts';
 
-/** Fills %SITE_URL% in index.html. Social cards need absolute URLs, so warn when it's unset. */
-function siteUrl(url: string): Plugin {
+/** Fills %SITE_URL% (link previews need absolute URLs) and %SHORT_URL% in index.html. */
+function siteUrl(url: string, short: string): Plugin {
   return {
     name: 'site-url',
-    transformIndexHtml: (html) =>
-      (url ? html : html.replace(/^\s*<link rel="canonical"[^>]*>\n/m, '')).replaceAll('%SITE_URL%', url),
-    buildStart() {
-      if (!url) {
-        this.warn('VITE_SITE_URL is not set: link previews will use relative URLs, which most social sites ignore.');
-      }
-    },
+    transformIndexHtml: (html) => html.replaceAll('%SITE_URL%', url).replaceAll('%SHORT_URL%', short),
   };
 }
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), 'VITE_');
+export default defineConfig(() => {
   return {
-    plugins: [siteUrl((env.VITE_SITE_URL ?? '').replace(/\/+$/, ''))],
+    plugins: [siteUrl(SITE_URL, SHORT_URL)],
     // Relative paths, so the same build works at a domain root (Cloudflare) or in a
     // subfolder (GitHub Pages serves this repo at /approve-or-deny/).
     base: './',

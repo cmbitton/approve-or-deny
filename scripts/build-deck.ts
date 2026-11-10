@@ -17,6 +17,7 @@ import {
   normalizePlate,
   parseBlocklist,
 } from './lib/filters.ts';
+import { assignIds } from './lib/ids.ts';
 import { scoreRound } from './lib/score.ts';
 import { type Action, parseAction, selectBalanced } from './lib/select.ts';
 
@@ -129,11 +130,15 @@ const { chosen, perSide } = selectBalanced(
   TARGET_PER_SIDE,
 );
 
+// Stable IDs for shared-plate links. Assigned over every eligible plate, not just the
+// deck, so a plate pinned in later can't collide with one already shared.
+const ids = assignIds(unique.map((u) => u.key));
+
 const deckRows = unique.filter((u) => chosen.has(u.key)).sort((a, b) => a.key.localeCompare(b.key));
 const deck: Deck = {
   version: 1,
   builtAt: new Date().toISOString(),
-  rounds: deckRows.map<Round>((u) => ({ p: u.plate, m: u.customer_meaning, c: u.reviewer_comments, a: u.approved ? 1 : 0 })),
+  rounds: deckRows.map<Round>((u) => ({ id: ids.get(u.key)!, p: u.plate, m: u.customer_meaning, c: u.reviewer_comments, a: u.approved ? 1 : 0 })),
 };
 mkdirSync(dirname(DECK), { recursive: true });
 writeFileSync(DECK, JSON.stringify(deck));
@@ -157,13 +162,14 @@ const csvCell = (v: string | number) => {
   const s = String(v);
   return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
-const header = ['action', 'plate', 'status', 'in_deck', 'score', 'customer_meaning', 'reviewer_comments', 'review_reason_code'];
+const header = ['action', 'id', 'plate', 'status', 'in_deck', 'score', 'customer_meaning', 'reviewer_comments', 'review_reason_code'];
 const reviewRows = [...unique].sort((a, b) => Number(chosen.has(b.key)) - Number(chosen.has(a.key)) || b.score - a.score);
 const lines = [header.join(',')];
 for (const u of reviewRows) {
   lines.push(
     [
       actions.get(u.key) ?? '',
+      ids.get(u.key)!,
       u.plate,
       u.approved ? 'Y' : 'N',
       chosen.has(u.key) ? 'yes' : '',
@@ -176,7 +182,7 @@ for (const u of reviewRows) {
       .join(','),
   );
 }
-for (const k of orphaned) lines.push([csvCell(actions.get(k)!), csvCell(k), '', 'not eligible', '', '', '', ''].join(','));
+for (const k of orphaned) lines.push([csvCell(actions.get(k)!), '', csvCell(k), '', 'not eligible', '', '', '', ''].join(','));
 writeFileSync(REVIEW, lines.join('\n') + '\n');
 
 // Summary

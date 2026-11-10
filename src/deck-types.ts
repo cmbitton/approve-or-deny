@@ -1,5 +1,7 @@
 /** One round. Text fields are verbatim from the DMV records. */
 export interface Round {
+  /** Stable ID used in shared-plate links (p/<id>/). Derived from the plate text at build time. */
+  id: string;
   /** Requested plate text. `#` hand, `$` heart, `+` plus, `&` star. */
   p: string;
   /** Applicant's explanation (customer_meaning). */
