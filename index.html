@@ -80,10 +80,15 @@
             <p class="verdict" id="verdict"></p>
             <p class="label">DMV reviewer wrote:</p>
             <p class="comment" id="comment"></p>
-            <p class="brand-mark"><b>Approved <i>or</i> Denied</b> <span>%SHORT_URL%</span></p>
-            <button type="button" class="icon-btn share-plate" id="btn-share-plate" aria-label="Share this plate">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14.5V3.5M7.5 8 12 3.5 16.5 8M6 11.5H5v8.5h14v-8.5h-1" /></svg>
-            </button>
+            <div class="reveal-foot">
+              <p class="brand-mark"><b>Approved <i>or</i> Denied</b> <span>%SHORT_URL%</span></p>
+              <button type="button" class="share-plate" id="btn-share-plate" aria-label="Share this plate">
+                <span class="share-pill">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14.5V3.5M7.5 8 12 3.5 16.5 8M6 11.5H5v8.5h14v-8.5h-1" /></svg>
+                  Share
+                </span>
+              </button>
+            </div>
           </div>
         </section>
 
