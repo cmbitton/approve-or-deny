@@ -3,7 +3,7 @@
 
 export const CONFIG = {
   /** Canonical URL used in share text. Falls back to wherever the page is served from. */
-  siteUrl: ((import.meta.env.VITE_SITE_URL as string | undefined) || location.origin).replace(/\/+$/, ''),
+  siteUrl: ((import.meta.env.VITE_SITE_URL as string | undefined) || new URL('.', location.href).href).replace(/\/+$/, ''),
   analytics: {
     /** Single switch for all analytics events. Off until a provider is chosen. */
     enabled: import.meta.env.VITE_ANALYTICS === 'on',

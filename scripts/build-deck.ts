@@ -1,5 +1,5 @@
 // Build-time pipeline: data/raw/applications.csv -> public/deck.json + data/review.csv
-// Usage: npm run deck [-- --per-side 750]
+// Usage: npm run deck [-- --per-side 2000]
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -33,7 +33,7 @@ const arg = (name: string) => {
   const i = process.argv.indexOf(name);
   return i > 0 ? process.argv[i + 1] : undefined;
 };
-const TARGET_PER_SIDE = Number(arg('--per-side') ?? 750);
+const TARGET_PER_SIDE = Number(arg('--per-side') ?? 2000);
 /** Days of dockets to schedule past today. Rerun the build before they run out. */
 const SCHEDULE_AHEAD_DAYS = 730;
 

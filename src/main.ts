@@ -402,7 +402,7 @@ async function boot() {
   bindGlobalInput();
   setSound(storage.load().soundOn);
   if ('serviceWorker' in navigator && import.meta.env.PROD) {
-    addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+    addEventListener('load', () => navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {}));
   }
   document.fonts?.ready.then(() => fitPlate(el.plateText));
   const data = Promise.all([fetchJson<Deck>('deck.json'), fetchJson<Schedule>('daily.json')]);

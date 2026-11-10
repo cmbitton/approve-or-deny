@@ -12,9 +12,15 @@ npm install && npm run dev      # http://localhost:5173
 
 ## Deploy it
 
+**GitHub Pages (current):** every push to `master` runs `.github/workflows/pages.yml`, which tests, builds and publishes to https://cmbitton.github.io/approve-or-deny/. One-time setup: repo Settings → Pages → Source: **GitHub Actions**. The build uses relative paths, so it works in that subfolder and at a domain root alike.
+
+**Cloudflare Pages (later, with a domain):**
+
 ```sh
-npm run deploy                  # builds, then uploads dist/ to Cloudflare Pages (asks you to log in the first time)
+VITE_SITE_URL=https://your-domain npm run deploy   # builds, then uploads dist/ (asks you to log in the first time)
 ```
+
+Scores and stats are saved per web address, so players moving from the github.io address to a new domain start fresh there.
 
 Netlify and Vercel work as-is too: connect the repo and they pick up `netlify.toml` / `vercel.json` (build command `npm run build`, output folder `dist`). Cache headers are set in `public/_headers` (Cloudflare Pages, Netlify) and `vercel.json`.
 
@@ -37,7 +43,7 @@ Settings (build-time environment variables, all optional):
 
 ```sh
 npm run deck          # data/raw/applications.csv -> public/deck.json + data/review.csv
-npm run deck -- --per-side 1000   # change deck size (default 750 approved + 750 denied)
+npm run deck -- --per-side 1500   # change deck size (default 2000 approved + 2000 denied; at most ~3550)
 npm test
 ```
 

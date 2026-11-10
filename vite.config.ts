@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_');
   return {
     plugins: [siteUrl((env.VITE_SITE_URL ?? '').replace(/\/+$/, ''))],
+    // Relative paths, so the same build works at a domain root (Cloudflare) or in a
+    // subfolder (GitHub Pages serves this repo at /approve-or-deny/).
+    base: './',
     build: { target: 'es2022' },
   };
 });
