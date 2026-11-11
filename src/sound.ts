@@ -11,6 +11,60 @@ let noise: AudioBuffer | null = null;
 /** Only records the setting; the AudioContext waits for the next tap or key (see unlock). */
 export function setSoundEnabled(on: boolean) {
   enabled = on;
+  if (!on) silentLoop?.pause();
+}
+
+// iOS routes Web Audio through the "ambient" audio session, which the Ring/Silent
+// switch mutes, so sound looked broken on iPhones set to silent. Asking for the
+// "playback" session (iOS 17+) makes it behave like any other media. Older iOS has
+// no such API, but a playing <audio> element switches the session the same way,
+// so a silent looping one is started from the gesture instead.
+let silentLoop: HTMLAudioElement | null = null;
+
+function usePlaybackSession() {
+  const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+  if (session) {
+    try {
+      session.type = 'playback';
+      return;
+    } catch {
+      // Fall through to the <audio> workaround.
+    }
+  }
+  if (!/iPad|iPhone|iPod/.test(navigator.userAgent) && !(navigator.maxTouchPoints > 1 && /Mac/.test(navigator.userAgent))) return;
+  if (!silentLoop) {
+    silentLoop = document.createElement('audio');
+    silentLoop.setAttribute('x-webkit-airplay', 'deny');
+    silentLoop.preload = 'auto';
+    silentLoop.loop = true;
+    silentLoop.src = silentWav();
+  }
+  void silentLoop.play().catch(() => {});
+}
+
+/** A short silent mono WAV as a data URI. */
+function silentWav(): string {
+  const rate = 8000;
+  const samples = rate / 10;
+  const bytes = new Uint8Array(44 + samples);
+  const v = new DataView(bytes.buffer);
+  const str = (o: number, t: string) => [...t].forEach((ch, i) => v.setUint8(o + i, ch.charCodeAt(0)));
+  str(0, 'RIFF');
+  v.setUint32(4, 36 + samples, true);
+  str(8, 'WAVEfmt ');
+  v.setUint32(16, 16, true);
+  v.setUint16(20, 1, true); // PCM
+  v.setUint16(22, 1, true); // mono
+  v.setUint32(24, rate, true);
+  v.setUint32(28, rate, true);
+  v.setUint16(32, 1, true);
+  v.setUint16(34, 8, true); // 8-bit
+  str(36, 'data');
+  v.setUint32(40, samples, true);
+  bytes.fill(128, 44); // 8-bit silence is the midpoint
+  let bin = '';
+  bytes.forEach((b) => (bin += String.fromCharCode(b)));
+  return `data:audio/wav;base64,${btoa(bin)}`;
 }
 
 /**
@@ -20,6 +74,7 @@ export function setSoundEnabled(on: boolean) {
  */
 export function unlock() {
   if (!enabled) return;
+  usePlaybackSession();
   try {
     if (!ctx) {
       ctx = new AudioContext();
